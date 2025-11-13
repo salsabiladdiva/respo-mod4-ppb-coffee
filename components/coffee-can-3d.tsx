@@ -12,10 +12,32 @@ export default function CoffeeCan3D() {
     const ctx = canvas.getContext("2d", { alpha: true })
     if (!ctx) return
 
+    // --- PENINGKATAN HD (HIGH-DPI) ---
+    // 1. Dapatkan rasio piksel perangkat
+    const dpr = window.devicePixelRatio || 1
+    
+    // 2. Simpan ukuran dasar dari atribut JSX (420x600)
+    const baseWidth = canvas.width
+    const baseHeight = canvas.height
+
+    // 3. Set ukuran render kanvas agar sesuai resolusi perangkat (lebih tinggi)
+    canvas.width = baseWidth * dpr
+    canvas.height = baseHeight * dpr
+
+    // 4. Set ukuran tampilan CSS kanvas agar tetap 420x600
+    canvas.style.width = `${baseWidth}px`
+    canvas.style.height = `${baseHeight}px`
+
+    // 5. Skalakan konteks gambar. Semua perintah gambar (fill, stroke, dll)
+    //    sekarang akan digambar pada resolusi yang lebih tinggi.
+    ctx.scale(dpr, dpr)
+    // --- AKHIR PENINGKATAN HD ---
+
     let rotation = 0
     let isHovering = false
     let mouseX = 0
 
+    // (Fungsi drawRoundRect tetap sama)
     const drawRoundRect = (
       ctx: CanvasRenderingContext2D,
       x: number,
@@ -39,24 +61,29 @@ export default function CoffeeCan3D() {
     }
 
     const drawCan = (rotation: number) => {
-      const width = canvas.width
-      const height = canvas.height
+      // Kita gunakan ukuran dasar untuk logika menggambar
+      const width = baseWidth 
+      const height = baseHeight
       const centerX = width / 2
       const centerY = height / 2
 
-      // Clear canvas with transparency
-      ctx.clearRect(0, 0, width, height)
+      // Clear canvas (ukuran yang sudah di-scale)
+      ctx.clearRect(0, 0, width * dpr, height * dpr)
 
       ctx.save()
 
-      // Draw shadow base - more pronounced
+      // --- PENINGKATAN EYE-CATCHING ---
+      // 1. Bayangan di bawah dibuat lebih lembut dan realistis
       ctx.translate(centerX, centerY)
       ctx.scale(1, 0.4)
-      ctx.fillStyle = "rgba(0, 0, 0, 0.35)"
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)" // Sedikit lebih gelap
+      ctx.filter = 'blur(5px)' // Tambahkan blur pada bayangan
       ctx.beginPath()
       ctx.ellipse(0, 140, 95, 50, 0, 0, Math.PI * 2)
       ctx.fill()
+      ctx.filter = 'none' // Reset filter
       ctx.restore()
+      // --- AKHIR PENINGKATAN ---
 
       ctx.save()
       ctx.translate(centerX, centerY)
@@ -65,7 +92,7 @@ export default function CoffeeCan3D() {
       ctx.rotate((rotation * Math.PI) / 180)
       ctx.translate(0, 60)
 
-      // Draw can body with advanced gradients
+      // Gradient tubuh kaleng
       const bodyGradient = ctx.createLinearGradient(-70, -90, 70, -90)
       bodyGradient.addColorStop(0, "#8b3e00")
       bodyGradient.addColorStop(0.15, "#d97706")
@@ -73,10 +100,15 @@ export default function CoffeeCan3D() {
       bodyGradient.addColorStop(0.85, "#d97706")
       bodyGradient.addColorStop(1, "#8b3e00")
 
-      // Main can body with enhanced shadow
+      // Tubuh kaleng utama
       ctx.fillStyle = bodyGradient
-      ctx.shadowBlur = 45
-      ctx.shadowColor = "rgba(255, 154, 61, 0.6)"
+      
+      // --- PENINGKATAN EYE-CATCHING ---
+      // 2. Membuat "glow" oranye lebih kuat dan menonjol
+      ctx.shadowBlur = 50 // Dari 45 -> 50
+      ctx.shadowColor = "rgba(255, 154, 61, 0.7)" // Dari 0.6 -> 0.7
+      // --- AKHIR PENINGKATAN ---
+
       ctx.shadowOffsetX = 5
       ctx.shadowOffsetY = 10
       if (typeof (ctx as any).roundRect === "function") {
@@ -87,7 +119,7 @@ export default function CoffeeCan3D() {
         ctx.fill()
       }
 
-      // Left side darker gradient for depth
+      // Bayangan sisi kiri
       const leftShadow = ctx.createLinearGradient(-70, -90, -50, -90)
       leftShadow.addColorStop(0, "rgba(0, 0, 0, 0.2)")
       leftShadow.addColorStop(1, "rgba(0, 0, 0, 0)")
@@ -100,11 +132,14 @@ export default function CoffeeCan3D() {
         ctx.fill()
       }
 
-      // Metallic shine - primary highlight
+      // --- PENINGKATAN EYE-CATCHING ---
+      // 3. Membuat kilau metalik lebih terang
       const shine1 = ctx.createLinearGradient(-65, -85, -50, -85)
-      shine1.addColorStop(0, "rgba(255, 255, 255, 0.25)")
-      shine1.addColorStop(0.5, "rgba(255, 255, 255, 0.4)")
+      shine1.addColorStop(0, "rgba(255, 255, 255, 0.3)") // Dari 0.25
+      shine1.addColorStop(0.5, "rgba(255, 255, 255, 0.5)") // Dari 0.4
       shine1.addColorStop(1, "rgba(255, 255, 255, 0)")
+      // --- AKHIR PENINGKATAN ---
+      
       ctx.fillStyle = shine1
       if (typeof (ctx as any).roundRect === "function") {
         ;(ctx as any).roundRect(-65, -85, 35, 130, [15, 0, 0, 8])
@@ -114,10 +149,10 @@ export default function CoffeeCan3D() {
         ctx.fill()
       }
 
-      // Secondary subtle shine
+      // Kilau sekunder
       const shine2 = ctx.createLinearGradient(45, -85, 65, -85)
       shine2.addColorStop(0, "rgba(255, 255, 255, 0)")
-      shine2.addColorStop(0.5, "rgba(255, 255, 255, 0.15)")
+      shine2.addColorStop(0.5, "rgba(255, 255, 255, 0.2)") // Dari 0.15
       shine2.addColorStop(1, "rgba(255, 255, 255, 0.05)")
       ctx.fillStyle = shine2
       if (typeof (ctx as any).roundRect === "function") {
@@ -128,8 +163,8 @@ export default function CoffeeCan3D() {
         ctx.fill()
       }
 
-      // Can top cap - metallic aluminum
-      ctx.shadowBlur = 0
+      // Tutup atas kaleng
+      ctx.shadowBlur = 0 // Reset shadow untuk bagian metalik
       const capGradient = ctx.createLinearGradient(0, -92, 0, -78)
       capGradient.addColorStop(0, "#e5e7eb")
       capGradient.addColorStop(0.5, "#d1d5db")
@@ -139,20 +174,20 @@ export default function CoffeeCan3D() {
       ctx.ellipse(0, -90, 68, 14, 0, 0, Math.PI * 2)
       ctx.fill()
 
-      // Cap rim detail
+      // Detail pinggir tutup
       ctx.strokeStyle = "rgba(0, 0, 0, 0.3)"
       ctx.lineWidth = 2
       ctx.beginPath()
       ctx.ellipse(0, -90, 68, 14, 0, 0, Math.PI * 2)
       ctx.stroke()
 
-      // Can top shine - very bright
-      ctx.fillStyle = "rgba(255, 255, 255, 0.5)"
+      // Kilau di tutup atas
+      ctx.fillStyle = "rgba(255, 255, 255, 0.6)" // Dari 0.5
       ctx.beginPath()
       ctx.ellipse(0, -92, 45, 7, 0, 0, Math.PI * 2)
       ctx.fill()
 
-      // Label container - rich dark background
+      // Label (Kode sisa tidak berubah)
       ctx.fillStyle = "#0f0d0a"
       ctx.globalAlpha = 0.9
       if (typeof (ctx as any).roundRect === "function") {
@@ -164,7 +199,7 @@ export default function CoffeeCan3D() {
       }
       ctx.globalAlpha = 1
 
-      // Label border - premium gold accent
+      // Border label
       ctx.strokeStyle = "rgba(251, 191, 36, 0.6)"
       ctx.lineWidth = 2.5
       if (typeof (ctx as any).roundRect === "function") {
@@ -175,7 +210,7 @@ export default function CoffeeCan3D() {
         ctx.stroke()
       }
 
-      // Label decorative lines
+      // Garis dekoratif label
       ctx.strokeStyle = "rgba(251, 191, 36, 0.2)"
       ctx.lineWidth = 1
       ctx.beginPath()
@@ -187,7 +222,7 @@ export default function CoffeeCan3D() {
       ctx.lineTo(62, 10)
       ctx.stroke()
 
-      // Main branding text - "BC" Logo
+      // Teks Logo "BC"
       const logoGradient = ctx.createLinearGradient(-20, -45, 20, -45)
       logoGradient.addColorStop(0, "#fbbf24")
       logoGradient.addColorStop(1, "#ff9a3d")
@@ -200,22 +235,22 @@ export default function CoffeeCan3D() {
       ctx.fillText("BC", 0, -40)
       ctx.shadowBlur = 0
 
-      // Brand name
+      // Teks Brand
       ctx.font = "bold 18px Arial, sans-serif"
       ctx.fillStyle = "#ff9a3d"
       ctx.fillText("BrewCan", 0, -15)
 
-      // Coffee type / Tagline
+      // Teks Tagline
       ctx.font = "11px Arial, sans-serif"
       ctx.fillStyle = "#fcd34d"
       ctx.fillText("PREMIUM COLD BREW", 0, 0)
 
-      // Specialty text
+      // Teks Specialty
       ctx.font = "bold 10px Arial, sans-serif"
       ctx.fillStyle = "rgba(251, 191, 36, 0.8)"
       ctx.fillText("Single Origin • Freshly Roasted", 0, 12)
 
-      // Coffee cup icon
+      // Ikon Kopi
       ctx.font = "40px Arial, sans-serif"
       ctx.fillStyle = "#ff9a3d"
       ctx.fillText("☕", 0, 30)
@@ -229,10 +264,12 @@ export default function CoffeeCan3D() {
       if (!isHovering) {
         rotation = (rotation + 0.8) % 360
       }
+      // Gunakan ukuran dasar untuk logika rotasi
       drawCan(rotation)
       rafId = requestAnimationFrame(animate)
     }
 
+    // (Semua event listener tetap sama)
     const onMouseEnter = () => {
       isHovering = true
     }
@@ -240,6 +277,7 @@ export default function CoffeeCan3D() {
     const onMouseMove = (e: MouseEvent) => {
       if (isHovering) {
         const rect = canvas.getBoundingClientRect()
+        // Sesuaikan mouseX dengan ukuran tampilan (bukan ukuran render)
         mouseX = (e as MouseEvent).clientX - rect.left
         const centerX = rect.width / 2
         rotation = ((mouseX - centerX) / rect.width) * 80
@@ -257,6 +295,7 @@ export default function CoffeeCan3D() {
     const onTouchMove = (e: TouchEvent) => {
       if (isHovering && e.touches[0]) {
         const rect = canvas.getBoundingClientRect()
+        // Sesuaikan touchX dengan ukuran tampilan
         mouseX = e.touches[0].clientX - rect.left
         const centerX = rect.width / 2
         rotation = ((mouseX - centerX) / rect.width) * 80
@@ -276,6 +315,7 @@ export default function CoffeeCan3D() {
 
     animate()
 
+    // (Cleanup function tetap sama)
     return () => {
       cancelAnimationFrame(rafId)
       canvas.removeEventListener("mouseenter", onMouseEnter)
@@ -285,15 +325,16 @@ export default function CoffeeCan3D() {
       canvas.removeEventListener("touchmove", onTouchMove)
       canvas.removeEventListener("touchend", onTouchEnd)
     }
-  }, [])
+  }, []) // Dependensi tetap kosong agar hanya berjalan sekali
 
   return (
     <div className="flex flex-col items-center justify-center space-y-6">
       <canvas
         ref={canvasRef}
-        width={420}
-        height={600}
+        width={420} // Atribut ini sekarang jadi ukuran "logis"
+        height={600} // Atribut ini sekarang jadi ukuran "logis"
         className="cursor-grab active:cursor-grabbing filter drop-shadow-2xl hover:drop-shadow-2xl transition-all duration-300"
+        // style={{ width: 420, height: 600 }} // Ukuran tampilan diatur oleh style di useEffect
       />
       <p className="text-sm text-muted-foreground animate-pulse text-center">
         <span className="block">Hover or tap to rotate</span>
