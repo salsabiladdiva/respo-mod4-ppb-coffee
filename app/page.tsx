@@ -4,7 +4,10 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import Navigation from "@/components/navigation"
 import { Coffee, Zap, Shield } from "lucide-react"
-import CoffeeCan3D from "@/components/coffee-can-3d"
+// Hapus import CoffeeCan3D
+// import CoffeeCan3D from "@/components/coffee-can-3d" 
+// Tambahkan import Image
+import Image from "next/image" 
 
 export default function Home() {
   const [isInstalled, setIsInstalled] = useState(false)
@@ -30,7 +33,7 @@ export default function Home() {
     <main className="min-h-screen bg-background text-foreground overflow-hidden">
       <Navigation />
 
-      {/* Hero Section - Eye-catching with gradients */}
+      {/* Hero Section */}
       <section className="relative min-h-screen flex items-center overflow-hidden pt-20">
         <div className="absolute inset-0 bg-gradient-to-b from-orange-950/40 via-transparent to-transparent animate-gradient-shift"></div>
         <div className="absolute -top-40 -right-40 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl animate-pulse-glow"></div>
@@ -38,7 +41,8 @@ export default function Home() {
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 z-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            {/* Left Content */}
+            
+            {/* Konten Teks (Kiri) */}
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="inline-block px-4 py-2 bg-primary/20 border border-primary/50 rounded-full">
@@ -83,10 +87,21 @@ export default function Home() {
               )}
             </div>
 
-            {/* Right - 3D Interactive Can */}
+            {/* --- BLOK YANG DIUBAH (Gambar 3D) --- */}
             <div className="flex justify-center items-center relative">
-              <CoffeeCan3D />
+              {/* <CoffeeCan3D /> <-- Komponen lama dihapus */}
+              
+              <Image
+                src="/images/products/coffee-can-fix.png" // Path ke gambar baru Anda
+                alt="Highly detailed 3D model of a BrewCan premium coffee can"
+                width={420}
+                height={600}
+                priority // Penting untuk gambar hero agar dimuat cepat
+                className="relative z-10 drop-shadow-2xl hover:drop-shadow-2xl transition-all duration-300 hover:scale-105"
+              />
             </div>
+            {/* --- AKHIR BLOK YANG DIUBAH --- */}
+
           </div>
         </div>
       </section>
@@ -141,7 +156,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA Section - Eye-catching */}
+      {/* CTA Section */}
       <section className="py-32 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-orange-600/20 via-amber-600/20 to-orange-600/20 animate-gradient-shift"></div>
         <div className="absolute top-0 right-0 w-96 h-96 bg-orange-500/15 rounded-full blur-3xl"></div>
